@@ -3,7 +3,7 @@ const User = require('../models/User')
 
 const connectDatabase = () => {
   try {
-    mongoose.connect(process.env.DATABASE_URL, {
+    mongoose.connect(process.env.MONGODB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
