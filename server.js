@@ -1,11 +1,11 @@
 const dotenv = require('dotenv')
 const express = require('express')
-const utilities = require('./modules/utilities')
-const apiRoute = require('./routes/api')
-const ApiError = require('./classes/ApiError')
+const database = require('./includes/database')
+const apiRouter = require('./api')
+const ApiError = require('./includes/classes/ApiError')
 
 dotenv.config()
-utilities.connectDatabase()
+database.connect()
 
 const server = express()
 const port = process.env.PORT || 5000
@@ -13,10 +13,10 @@ const port = process.env.PORT || 5000
 server.use(express.urlencoded({ extended: false }))
 server.use(express.json())
 
-server.use('/api', apiRoute)
+server.use('/api', apiRouter)
 
 server.use((request, response, next) => {
-  next(new ApiError('That route does not exist', 404))
+  return next(new ApiError('That route does not exist', 404))
 })
 
 server.use((error, request, response, next) => {
