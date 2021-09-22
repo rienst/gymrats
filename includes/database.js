@@ -1,24 +1,22 @@
 const mongoose = require('mongoose')
 
-const connect = () => {
-  try {
-    mongoose.connect(process.env.MONGODB_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    })
+class Database {
+  constructor(url) {
+    try {
+      mongoose.connect(url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+      })
 
-    console.log('Connected to the database')
-  } catch (error) {
-    console.error(error)
+      console.log('Connected to the database')
+    } catch (error) {
+      console.error(error)
 
-    process.exit()
+      process.exit()
+    }
   }
 }
 
-const database = {
-  connect,
-}
-
-module.exports = database
+module.exports = Database

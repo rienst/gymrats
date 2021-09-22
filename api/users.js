@@ -1,5 +1,5 @@
 const express = require('express')
-const ApiError = require('../includes/classes/ApiError')
+const ApiError = require('../includes/ApiError')
 const User = require('../includes/models/User')
 const authMiddleware = require('../includes/middleware/auth')
 
@@ -29,16 +29,13 @@ router.post('/', async (request, response, next) => {
     }
 
     const user = new User(request.body)
+
     const savedUser = await user.save()
 
     savedUser.set('password', undefined)
 
     response.json(savedUser)
   } catch (error) {
-    if (error.code === 11000) {
-      return next(new ApiError('That email address is already taken', 400))
-    }
-
     return next(error)
   }
 })
@@ -73,15 +70,9 @@ router.put(
         }
       }
 
-      const changes = request.body
-
-      if (changes.password) {
-        changes.password = await bcrypt.hash(changes.password, 10)
-      }
-
       const savedUser = await User.findOneAndUpdate(
         { _id: request.params._id },
-        changes,
+        request.body,
         { new: true }
       )
 

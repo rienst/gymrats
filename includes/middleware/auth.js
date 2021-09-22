@@ -1,6 +1,6 @@
 const jsonwebtoken = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const ApiError = require('../classes/ApiError')
+const ApiError = require('../ApiError')
 const User = require('../models/User')
 
 const verifyCredentials = async (request, response, next) => {
@@ -40,17 +40,11 @@ const verifyCredentials = async (request, response, next) => {
 
 const verifyToken = async (request, response, next) => {
   try {
-    const authorizationHeader = request.headers.authorization
+    const token = request.headers.authorization
 
-    if (!authorizationHeader) {
+    if (!token) {
       throw new ApiError('No authorization header was found', 400)
     }
-
-    if (authorizationHeader.slice(0, 7) !== 'Bearer ') {
-      throw new ApiError('No valid bearer token was found', 400)
-    }
-
-    const token = authorizationHeader.slice(7)
 
     const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
 

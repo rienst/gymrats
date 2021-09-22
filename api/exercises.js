@@ -1,5 +1,5 @@
 const express = require('express')
-const ApiError = require('../includes/classes/ApiError')
+const ApiError = require('../includes/ApiError')
 const Exercise = require('../includes/models/Exercise')
 const authMiddleware = require('../includes/middleware/auth')
 

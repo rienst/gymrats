@@ -1,20 +1,23 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
-const ApiError = require('../classes/ApiError')
+const validator = require('validator')
 
-const schema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true, 'Please provide an email address'],
+    unique: [true, 'That email address is already taken'],
+    validate: [validator.isEmail, 'Please provide a valid email address'],
   },
   password: {
     type: String,
-    required: true,
+    required: [true, 'Please provide a password'],
     select: false,
+    minLength: [8, 'Please provide a password of at least 8 characters'],
   },
   name: {
     type: String,
+    minLength: [3, 'Please provide a name of at least 3 characters'],
   },
   isAdmin: {
     type: Boolean,
@@ -22,23 +25,20 @@ const schema = mongoose.Schema({
   },
 })
 
-schema.pre('save', async function (next) {
-  if (this.email.search('@') === -1) {
-    throw new ApiError('Please provide a valid email', 400)
+userSchema.pre('findOneAndUpdate', async function (next) {
+  if (this.password) {
+    this.password = await bcrypt.hash(this.password, 10)
   }
 
-  if (this.password.length < 8) {
-    throw new ApiError(
-      'Please provide a password of at least 8 characters',
-      400
-    )
+  if (this.name) {
+    this.name = validator.escape(this.name)
   }
 
-  this.password = await bcrypt.hash(this.password, 10)
+  console.log(this.name)
 
   next()
 })
 
-const model = mongoose.model('User', schema)
+const User = mongoose.model('User', userSchema)
 
-module.exports = model
+module.exports = User
