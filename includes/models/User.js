@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
 const validator = require('validator')
+const bcrypt = require('bcrypt')
+const jsonwebtoken = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -25,16 +26,49 @@ const userSchema = new mongoose.Schema({
   },
 })
 
-userSchema.pre('findOneAndUpdate', async function (next) {
-  if (this.password) {
+userSchema.statics.verifyCredentials = async (email, password) => {
+  const user = await User.findOne({ email }).select('+password')
+
+  if (!user) {
+    return false
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password)
+
+  if (!passwordMatch) {
+    return false
+  }
+
+  return user
+}
+
+userSchema.statics.verifyToken = async token => {
+  try {
+    const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
+    if (!tokenData._id) {
+      return false
+    }
+
+    const user = await User.findOne({ _id: tokenData._id })
+
+    if (!user) {
+      return false
+    }
+
+    return user
+  } catch (error) {
+    return false
+  }
+}
+
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10)
   }
 
-  if (this.name) {
+  if (this.isModified('name')) {
     this.name = validator.escape(this.name)
   }
-
-  console.log(this.name)
 
   next()
 })

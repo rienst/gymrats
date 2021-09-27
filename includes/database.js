@@ -2,8 +2,12 @@ const mongoose = require('mongoose')
 
 class Database {
   constructor(url) {
+    this.url = url
+  }
+
+  connect() {
     try {
-      mongoose.connect(url, {
+      mongoose.connect(this.url, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
