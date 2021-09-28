@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const authRouter = require('./routes/api/auth')
 const usersRouter = require('./routes/api/users')
 const checkToken = require('./middleware/checkToken')
@@ -13,6 +14,7 @@ class Server {
   start() {
     const server = express()
 
+    server.use(cors())
     server.use(express.urlencoded({ extended: false }))
     server.use(express.json())
     server.use(checkToken)

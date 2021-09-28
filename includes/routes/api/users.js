@@ -5,9 +5,49 @@ const router = express.Router()
 
 router.get('/', async (request, response, next) => {
   try {
-    const users = await User.find()
+    let query = {}
 
-    response.json(users)
+    if (request.body.name) {
+      query = {
+        ...query,
+        name: {
+          $regex: request.body.name,
+          $options: 'i',
+        },
+      }
+    }
+
+    if (request.body.email) {
+      query = {
+        ...query,
+        email: {
+          $regex: request.body.email,
+          $options: 'i',
+        },
+      }
+    }
+
+    if (request.body.isAdmin) {
+      query = {
+        ...query,
+        isAdmin: request.body.isAdmin,
+      }
+    }
+
+    let orderBy = 'email'
+    let order = 'asc'
+
+    if (request.body.orderBy) {
+      orderBy = request.body.orderBy
+    }
+
+    if (request.body.order === 'desc') {
+      order = request.body.order
+    }
+
+    const users = await User.find(query).sort({ [orderBy]: order })
+
+    return response.json({ users })
   } catch (error) {
     return next(error)
   }
@@ -19,10 +59,10 @@ router.get('/:_id', async (request, response, next) => {
 
     if (!user) {
       response.status(404)
-      return response.send('That user could not be found')
+      return response.json({ error: 'That user could not be found' })
     }
 
-    response.json(user)
+    return response.json({ user })
   } catch (error) {
     return next(error)
   }
@@ -32,7 +72,7 @@ router.post('/', async (request, response, next) => {
   try {
     if (request.body.isAdmin === true) {
       response.status(400)
-      return response.send('Administrators cannot be created')
+      return response.json({ error: 'Administrators cannot be created' })
     }
 
     const user = new User(request.body)
@@ -41,7 +81,7 @@ router.post('/', async (request, response, next) => {
 
     savedUser.set('password', undefined)
 
-    response.json(savedUser)
+    return response.json(savedUser)
   } catch (error) {
     return next(error)
   }
@@ -51,20 +91,24 @@ router.patch('/:_id', async (request, response, next) => {
   try {
     if (!request.user) {
       response.status(401)
-      return response.send('You need to be logged in to update users')
+      return response.json({
+        error: 'You need to be logged in to update users',
+      })
     }
 
     if (!request.user.isAdmin) {
       if (request.params._id !== request.user._id.toString()) {
         response.status(403)
-        return response.send(
-          'You need administrator rights to update other users'
-        )
+        return response.json({
+          error: 'You need administrator rights to update other users',
+        })
       }
 
       if (request.body.isAdmin === true) {
         response.status(403)
-        return response.send('You cannot make yourself an administrator')
+        return response.json({
+          error: 'You cannot make yourself an administrator',
+        })
       }
     }
 
@@ -74,7 +118,7 @@ router.patch('/:_id', async (request, response, next) => {
 
     const savedUser = await user.save()
 
-    response.json(savedUser)
+    return response.json({ user: savedUser })
   } catch (error) {
     return next(error)
   }
@@ -84,7 +128,9 @@ router.delete('/:_id', async (request, response, next) => {
   try {
     if (!request.user) {
       response.status(401)
-      return response.send('You need to be logged in to delete users')
+      return response.json({
+        error: 'You need to be logged in to delete users',
+      })
     }
 
     if (
@@ -92,21 +138,21 @@ router.delete('/:_id', async (request, response, next) => {
       request.params._id !== request.user._id.toString()
     ) {
       response.status(401)
-      return response.send(
-        'You need administrator rights to delete other users'
-      )
+      return response.json({
+        error: 'You need administrator rights to delete other users',
+      })
     }
 
     const result = await User.deleteOne({ _id: request.params._id })
 
     if (result.deletedCount === 0) {
       response.status(404)
-      return response.send(
-        'That user could not be deleted, it probably does not exist'
-      )
+      return response.json({
+        error: 'That user could not be deleted, it probably does not exist',
+      })
     }
 
-    return response.send('The user was successfully deleted')
+    return response.json({ message: 'The user was successfully deleted' })
   } catch (error) {
     return next(error)
   }
