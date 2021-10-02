@@ -1,0 +1,39 @@
+@mixin alert-variant($background, $border, $color) {
+  color: $color;
+  @include gradient-bg($background);
+  border-color: $border;
+
+  .alert-link {
+    color: shade-color($color, 20%);
+  }
+
+  .btn-close {
+    opacity: 1;
+    background: transparent
+      escape-svg(
+        url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$color}'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>")
+      )
+      center / $btn-close-width auto no-repeat;
+    @include transition($btn-transition);
+
+    &:hover {
+      color: $btn-close-color;
+      text-decoration: none;
+      opacity: $btn-close-hover-opacity;
+    }
+
+    &:focus {
+      outline: 0;
+      box-shadow: 0 0 0 $btn-focus-width
+        rgba($color, $input-btn-focus-color-opacity);
+      opacity: $btn-close-focus-opacity;
+    }
+
+    &:disabled,
+    &.disabled {
+      pointer-events: none;
+      user-select: none;
+      opacity: $btn-close-disabled-opacity;
+    }
+  }
+}

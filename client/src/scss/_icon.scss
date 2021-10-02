@@ -1,0 +1,12 @@
+.icon {
+  width: $icon-size;
+  height: $icon-size;
+  fill: currentColor;
+  display: inline-block;
+  vertical-align: text-bottom;
+}
+
+.icon-lg {
+  width: $icon-size-lg;
+  height: $icon-size-lg;
+}

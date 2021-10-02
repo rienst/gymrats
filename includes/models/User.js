@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
 const jsonwebtoken = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -21,6 +22,10 @@ const userSchema = new mongoose.Schema({
     minLength: [3, 'Please provide a name of at least 3 characters'],
   },
   isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  isVerified: {
     type: Boolean,
     default: false,
   },
@@ -62,13 +67,66 @@ userSchema.statics.verifyToken = async token => {
   }
 }
 
+userSchema.statics.verifyEmail = async token => {
+  const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
+
+  if (tokenData.action !== 'verifyEmail' || !tokenData._id) {
+    return false
+  }
+
+  const user = await User.findOne({ _id: tokenData._id })
+
+  if (!user) {
+    return false
+  }
+
+  user.isVerified = true
+
+  await user.save()
+
+  return true
+}
+
 userSchema.methods.createToken = function () {
   const token = jsonwebtoken.sign({ _id: this._id }, process.env.JWT_SECRET)
 
   return token
 }
 
+userSchema.methods.sendVerificationEmail = async function () {
+  const verificationToken = await jsonwebtoken.sign(
+    {
+      _id: this._id,
+      action: 'verifyEmail',
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '7d',
+    }
+  )
+
+  const verificationLink = `${process.env.URL}/verify-email?token=${verificationToken}`
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASSWORD,
+    },
+  })
+
+  const mailInfo = await transporter.sendMail({
+    from: `Gymrats <${process.env.MAIL_USER}>`,
+    to: 'rien@rsdigitalstrategy.com',
+    subject: 'Please confirm your password',
+    text: `Thank you for signing up to Gymrats!\n\nPlease confirm your email address using the following link:\n\n${verificationLink}`,
+    html: `<p>Thank you for signing up to Gymrats!</p><p>Please confirm your email address using <a href="${verificationLink}">this link</a>.</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
+  })
+}
+
 userSchema.pre('save', async function (next) {
+  this.wasNew = this.isNew
+
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10)
   }
@@ -78,6 +136,16 @@ userSchema.pre('save', async function (next) {
   }
 
   next()
+})
+
+userSchema.post('save', async function (doc) {
+  try {
+    if (!this.wasNew) {
+      return
+    }
+
+    this.sendVerificationEmail()
+  } catch (error) {}
 })
 
 const User = mongoose.model('User', userSchema)

@@ -1,7 +1,7 @@
 import { FC, useState, useRef } from 'react'
 
 type Props = {
-  type?: 'primary' | 'warning' | 'danger'
+  type?: 'primary' | 'success' | 'warning' | 'danger'
   message?: string
   onDismiss?: () => any
 }

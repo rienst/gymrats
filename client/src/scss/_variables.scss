@@ -1,6 +1,7 @@
 $primary: #000;
-$dark: #000;
+$success: #00c493;
 $danger: #ed0033;
+$dark: #000;
 
 $border-radius-sm: 0.375rem;
 $border-radius: 0.5rem;
@@ -8,6 +9,7 @@ $border-radius-lg: 0.75rem;
 
 $headings-font-family: 'DM Sans';
 $headings-font-weight: 700;
+$headings-margin-bottom: 1.5rem;
 
 $link-color: $danger;
 $link-decoration: none;
@@ -22,3 +24,7 @@ $btn-font-weight: 500;
 $btn-close-width: 0.75rem;
 
 $spinner-border-width: 2px;
+$spinner-border-width-sm: $spinner-border-width;
+
+$icon-size: 1rem;
+$icon-size-lg: 2rem;

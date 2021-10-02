@@ -4,6 +4,7 @@ import Loader from '../Loader'
 
 type AuthContextProps = {
   user?: User
+  token?: string
   updateToken: (token?: string) => void
 }
 
@@ -77,8 +78,6 @@ const AuthProvider: FC = ({ children }) => {
 
         const data = await response.json()
 
-        console.log(data)
-
         if (!response.ok || !data.user) {
           setToken(() => undefined)
           setUser(() => undefined)
@@ -100,6 +99,7 @@ const AuthProvider: FC = ({ children }) => {
 
   const value = {
     user,
+    token,
     updateToken,
   }
 

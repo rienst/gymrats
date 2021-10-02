@@ -2,11 +2,15 @@ import { FC, useContext } from 'react'
 import { Redirect } from 'react-router-dom'
 import { authContext } from '../shared/AuthContext'
 
-const SignUp: FC = () => {
+const Dashboard: FC = () => {
   const { user, updateToken } = useContext(authContext)
 
   if (!user) {
     return <Redirect to="/login" />
+  }
+
+  if (!user.isVerified) {
+    return <Redirect to="/not-verified" />
   }
 
   return (
@@ -29,4 +33,4 @@ const SignUp: FC = () => {
   )
 }
 
-export default SignUp
+export default Dashboard
