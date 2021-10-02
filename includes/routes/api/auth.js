@@ -1,12 +1,16 @@
 const express = require('express')
-const jsonwebtoken = require('jsonwebtoken')
 const checkCredentials = require('../../middleware/checkCredentials')
 
 const router = express.Router()
 
 router.get('/', async (request, response, next) => {
   try {
-    response.send(request.user)
+    if (!request.user) {
+      response.status(403)
+      return response.json({ error: 'Could not log in' })
+    }
+
+    response.json({ user: request.user })
   } catch (error) {
     return next(error)
   }
@@ -14,13 +18,7 @@ router.get('/', async (request, response, next) => {
 
 router.post('/', checkCredentials, async (request, response, next) => {
   try {
-    const token = jsonwebtoken.sign(
-      { _id: request.user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: '1d',
-      }
-    )
+    const token = request.user.createToken()
 
     response.json({ token })
   } catch (error) {

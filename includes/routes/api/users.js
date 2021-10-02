@@ -79,9 +79,9 @@ router.post('/', async (request, response, next) => {
 
     const savedUser = await user.save()
 
-    savedUser.set('password', undefined)
+    const token = savedUser.createToken()
 
-    return response.json(savedUser)
+    return response.json({ token })
   } catch (error) {
     return next(error)
   }

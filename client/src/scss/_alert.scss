@@ -1,0 +1,16 @@
+.alert-dismissible {
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  &.show {
+    opacity: 1;
+  }
+
+  .btn-close {
+    top: 50%;
+    right: $alert-padding-x * 0.5;
+    transform: translateY(-50%);
+    z-index: $stretched-link-z-index + 1;
+    padding: $alert-padding-x * 0.5;
+  }
+}

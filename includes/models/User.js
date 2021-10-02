@@ -45,6 +45,7 @@ userSchema.statics.verifyCredentials = async (email, password) => {
 userSchema.statics.verifyToken = async token => {
   try {
     const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
+
     if (!tokenData._id) {
       return false
     }
@@ -59,6 +60,12 @@ userSchema.statics.verifyToken = async token => {
   } catch (error) {
     return false
   }
+}
+
+userSchema.methods.createToken = function () {
+  const token = jsonwebtoken.sign({ _id: this._id }, process.env.JWT_SECRET)
+
+  return token
 }
 
 userSchema.pre('save', async function (next) {

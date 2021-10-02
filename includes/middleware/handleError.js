@@ -10,14 +10,11 @@ const handleError = (error, request, response, next) => {
   }
 
   if (error.name === 'ValidationError') {
-    const validationErrors = Object.values(error.errors).map(
-      validationError => {
-        return {
-          field: validationError.path,
-          error: validationError.message,
-        }
-      }
-    )
+    const validationErrors = {}
+
+    Object.values(error.errors).forEach(validationError => {
+      validationErrors[validationError.path] = validationError.message
+    })
 
     response.status(400)
     return response.json({
