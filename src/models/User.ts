@@ -1,10 +1,19 @@
-const mongoose = require('mongoose')
-const validator = require('validator')
-const bcrypt = require('bcrypt')
-const jsonwebtoken = require('jsonwebtoken')
-const nodemailer = require('nodemailer')
+import mongoose from 'mongoose'
+import validator from 'validator'
+import bcrypt from 'bcrypt'
+import jsonwebtoken from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
 
-const userSchema = new mongoose.Schema({
+export type User = {
+  _id: string
+  email: string
+  name?: string
+  isAdmin: boolean
+  isVerified: boolean
+  __v: number
+}
+
+const userSchema = new mongoose.Schema<User>({
   email: {
     type: String,
     required: [true, 'Please provide an email address'],
@@ -148,6 +157,6 @@ userSchema.post('save', async function (doc) {
   } catch (error) {}
 })
 
-const User = mongoose.model('User', userSchema)
+const UserModel = mongoose.model<User>('User', userSchema)
 
-module.exports = User
+export default UserModel

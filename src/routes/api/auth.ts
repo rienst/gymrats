@@ -1,6 +1,6 @@
-const express = require('express')
-const checkCredentials = require('../../middleware/checkCredentials')
-const User = require('../../models/User')
+import express from 'express'
+import checkCredentials from '../../middleware/checkCredentials'
+import User from '../../models/User'
 
 const router = express.Router()
 
@@ -62,4 +62,4 @@ router.post('/verify-email', async (request, response, next) => {
   }
 })
 
-module.exports = router
+export default router

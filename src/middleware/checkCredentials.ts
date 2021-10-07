@@ -1,6 +1,11 @@
-const User = require('../models/User')
+import express from 'express'
+import User from '../models/User'
 
-const checkCredentials = async (request, response, next) => {
+const checkCredentials = async (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction
+) => {
   try {
     if (!request.body.email) {
       response.status(400)
@@ -32,4 +37,4 @@ const checkCredentials = async (request, response, next) => {
   }
 }
 
-module.exports = checkCredentials
+export default checkCredentials

@@ -27,4 +27,4 @@ const handleError = (error, request, response, next) => {
   return response.json({ error: 'Something went wrong' })
 }
 
-module.exports = handleError
+export default handleError

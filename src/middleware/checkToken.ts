@@ -1,4 +1,4 @@
-const User = require('../models/User')
+import User from '../models/User'
 
 const checkToken = async (request, response, next) => {
   try {
@@ -20,4 +20,4 @@ const checkToken = async (request, response, next) => {
   }
 }
 
-module.exports = checkToken
+export default checkToken

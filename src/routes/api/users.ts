@@ -1,5 +1,5 @@
-const express = require('express')
-const User = require('../../models/User')
+import express from 'express'
+import User from '../../models/User'
 
 const router = express.Router()
 
@@ -158,4 +158,4 @@ router.delete('/:_id', async (request, response, next) => {
   }
 })
 
-module.exports = router
+export default router

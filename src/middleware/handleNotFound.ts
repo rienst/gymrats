@@ -3,4 +3,4 @@ const handleNotFound = (request, response, next) => {
   return response.json({ error: 'That route does not exist' })
 }
 
-module.exports = handleNotFound
+export default handleNotFound
