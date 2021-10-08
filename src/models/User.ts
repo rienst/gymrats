@@ -4,16 +4,27 @@ import bcrypt from 'bcrypt'
 import jsonwebtoken from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
 
-export type User = {
-  _id: string
+export interface User {
   email: string
+  password?: string
   name?: string
   isAdmin: boolean
   isVerified: boolean
-  __v: number
 }
 
-const userSchema = new mongoose.Schema<User>({
+export interface UserDocument extends User, mongoose.Document {
+  createToken: () => string
+  sendVerificationEmail: () => Promise<true>
+  wasNew?: boolean
+}
+
+export interface UserModel extends mongoose.Model<UserDocument> {
+  checkCredentials: (email: string, password: string) => Promise<User>
+  checkToken: (token: string) => Promise<User>
+  verifyEmail: (token: string) => Promise<User>
+}
+
+const userSchema = new mongoose.Schema<UserDocument, UserModel>({
   email: {
     type: String,
     required: [true, 'Please provide an email address'],
@@ -40,69 +51,88 @@ const userSchema = new mongoose.Schema<User>({
   },
 })
 
-userSchema.statics.verifyCredentials = async (email, password) => {
-  const user = await User.findOne({ email }).select('+password')
+userSchema.statics.checkCredentials = async function (
+  email: string,
+  password: string
+) {
+  const user = await this.findOne({ email }).select('+password')
 
-  if (!user) {
-    return false
+  if (!user || !user.password) {
+    throw new Error('That user was not found')
   }
 
   const passwordMatch = await bcrypt.compare(password, user.password)
 
   if (!passwordMatch) {
-    return false
+    throw new Error('That password is invalid')
   }
 
   return user
 }
 
-userSchema.statics.verifyToken = async token => {
-  try {
-    const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
-
-    if (!tokenData._id) {
-      return false
-    }
-
-    const user = await User.findOne({ _id: tokenData._id })
-
-    if (!user) {
-      return false
-    }
-
-    return user
-  } catch (error) {
-    return false
+userSchema.statics.checkToken = async function (token: string) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('The token could not be validated')
   }
-}
 
-userSchema.statics.verifyEmail = async token => {
   const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
 
-  if (tokenData.action !== 'verifyEmail' || !tokenData._id) {
-    return false
+  if (typeof tokenData === 'string' || !tokenData._id) {
+    throw new Error('That token is invalid')
   }
 
-  const user = await User.findOne({ _id: tokenData._id })
+  const user = await this.findOne({ _id: tokenData._id })
 
   if (!user) {
-    return false
+    throw new Error('That user was not found')
+  }
+
+  return user
+}
+
+userSchema.statics.verifyEmail = async function (token: string) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('The email could not be validated')
+  }
+
+  const tokenData = jsonwebtoken.verify(token, process.env.JWT_SECRET)
+
+  if (
+    typeof tokenData === 'string' ||
+    tokenData.action !== 'verifyEmail' ||
+    !tokenData._id
+  ) {
+    throw new Error('That password is invalid')
+  }
+
+  const user = await this.findOne({ _id: tokenData._id })
+
+  if (!user) {
+    throw new Error('The email could not be validated')
   }
 
   user.isVerified = true
 
   await user.save()
 
-  return true
+  return user
 }
 
 userSchema.methods.createToken = function () {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('The token could not be created')
+  }
+
   const token = jsonwebtoken.sign({ _id: this._id }, process.env.JWT_SECRET)
 
   return token
 }
 
 userSchema.methods.sendVerificationEmail = async function () {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('The verification email could not be sent')
+  }
+
   const verificationToken = await jsonwebtoken.sign(
     {
       _id: this._id,
@@ -131,32 +161,34 @@ userSchema.methods.sendVerificationEmail = async function () {
     text: `Thank you for signing up to Gymrats!\n\nPlease confirm your email address using the following link:\n\n${verificationLink}`,
     html: `<p>Thank you for signing up to Gymrats!</p><p>Please confirm your email address using <a href="${verificationLink}">this link</a>.</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
   })
+
+  if (!mailInfo) {
+    throw new Error('The email could not be sent')
+  }
+
+  return true
 }
 
-userSchema.pre('save', async function (next) {
+userSchema.pre<UserDocument>('save', async function (next) {
   this.wasNew = this.isNew
 
-  if (this.isModified('password')) {
+  if (this.password && this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10)
   }
 
-  if (this.isModified('name')) {
+  if (this.name && this.isModified('name')) {
     this.name = validator.escape(this.name)
   }
 
   next()
 })
 
-userSchema.post('save', async function (doc) {
-  try {
-    if (!this.wasNew) {
-      return
-    }
+userSchema.post<UserDocument>('save', async function (doc) {
+  if (!this.wasNew) {
+    return
+  }
 
-    this.sendVerificationEmail()
-  } catch (error) {}
+  this.sendVerificationEmail()
 })
 
-const UserModel = mongoose.model<User>('User', userSchema)
-
-export default UserModel
+export default mongoose.model<UserDocument, UserModel>('User', userSchema)

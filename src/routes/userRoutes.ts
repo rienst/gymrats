@@ -1,57 +1,7 @@
 import express from 'express'
-import User from '../../models/User'
+import User from '../models/User'
 
 const router = express.Router()
-
-router.get('/', async (request, response, next) => {
-  try {
-    let query = {}
-
-    if (request.body.name) {
-      query = {
-        ...query,
-        name: {
-          $regex: request.body.name,
-          $options: 'i',
-        },
-      }
-    }
-
-    if (request.body.email) {
-      query = {
-        ...query,
-        email: {
-          $regex: request.body.email,
-          $options: 'i',
-        },
-      }
-    }
-
-    if (request.body.isAdmin) {
-      query = {
-        ...query,
-        isAdmin: request.body.isAdmin,
-      }
-    }
-
-    let orderBy = 'email'
-    let order = 'asc'
-
-    if (request.body.orderBy) {
-      orderBy = request.body.orderBy
-    }
-
-    if (request.body.order === 'desc') {
-      order = request.body.order
-    }
-
-    const users = await User.find(query).sort({ [orderBy]: order })
-
-    return response.json({ users })
-  } catch (error) {
-    return next(error)
-  }
-})
 
 router.get('/:_id', async (request, response, next) => {
   try {
@@ -114,9 +64,14 @@ router.patch('/:_id', async (request, response, next) => {
 
     const user = await User.findById(request.params._id)
 
-    await user.set(request.body)
+    if (!user) {
+      response.status(400)
+      return response.json({
+        error: 'Could not modify user',
+      })
+    }
 
-    const savedUser = await user.save()
+    const savedUser = await user.set(request.body).save()
 
     return response.json({ user: savedUser })
   } catch (error) {

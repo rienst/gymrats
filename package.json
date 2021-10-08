@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start": "concurrently 'npm run start:server' 'npm start --prefix client'",
-    "start:server": "nodemon src/server.ts"
+    "start:server": "nodemon src/index.ts",
+    "start:client": "npm start --prefix client",
+    "start": "concurrently 'npm run start:server' 'npm run start:client'"
   },
   "license": "ISC",
   "dependencies": {
