@@ -7,3 +7,7 @@ declare global {
     }
   }
 }
+
+export interface ValidationErrors {
+  [field: string]: string
+}

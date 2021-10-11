@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
-import Database from './classes/Database'
-import Server from './classes/Server'
+import Database from './abstracts/Database'
+import Server from './abstracts/Server'
 
 dotenv.config()
 

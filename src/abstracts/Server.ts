@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
-import authRouter from '../routes/api/auth'
-import usersRouter from '../routes/api/users'
+import authRouter from '../routes/authRoute'
+import UsersController from '../controllers/UsersController'
 import checkToken from '../middleware/checkToken'
 import handleNotFound from '../middleware/handleNotFound'
 import handleError from '../middleware/handleError'
@@ -21,7 +21,7 @@ export default class Server {
     this.instance.use(express.json())
     this.instance.use(checkToken)
     this.instance.use('/api/auth', authRouter)
-    this.instance.use('/api/users', usersRouter)
+    this.instance.use('/api/users', new UsersController().router)
     this.instance.use(handleNotFound)
     this.instance.use(handleError)
     this.instance.listen(this.port, () =>

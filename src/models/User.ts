@@ -183,7 +183,7 @@ userSchema.pre<UserDocument>('save', async function (next) {
   next()
 })
 
-userSchema.post<UserDocument>('save', async function (doc) {
+userSchema.post<UserDocument>('save', async function () {
   if (!this.wasNew) {
     return
   }

@@ -1,4 +1,8 @@
-const handleError = (error, request, response, next) => {
+import { ErrorRequestHandler } from 'express'
+import { Error } from 'mongoose'
+import { ValidationErrors } from '../types'
+
+const handleError: ErrorRequestHandler = (error, request, response) => {
   console.error(error)
 
   // Handle duplicate key error
@@ -10,11 +14,19 @@ const handleError = (error, request, response, next) => {
   }
 
   if (error.name === 'ValidationError') {
-    const validationErrors = {}
+    const mongooseValidationError: Error.ValidationError = error
+    const validationErrors: ValidationErrors = {}
 
-    Object.values(error.errors).forEach(validationError => {
-      validationErrors[validationError.path] = validationError.message
-    })
+    Object.values(mongooseValidationError.errors).forEach(
+      mongooseValidationError => {
+        if (mongooseValidationError.name === 'ValidationError') {
+          return
+        }
+
+        validationErrors[mongooseValidationError.path] =
+          mongooseValidationError.message
+      }
+    )
 
     response.status(400)
     return response.json({
