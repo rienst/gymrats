@@ -17,6 +17,8 @@ const LogInForm: FC = () => {
       setLoading(() => true)
       setError(() => undefined)
 
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       if (!updateToken) {
         setError(() => 'Could not log in, please try again')
         setLoading(() => false)

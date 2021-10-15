@@ -2,8 +2,24 @@ import { RequestHandler } from 'express'
 import ApiError from '../abstracts/ApiError'
 import User from '../models/User'
 
-export default class UserController {
-  static post: RequestHandler = async (request, response) => {
+export const getUser: RequestHandler = async (request, response, next) => {
+  try {
+    const user = await User.findById(request.params._id)
+
+    if (!user) {
+      throw new ApiError('That user could not be found', 404)
+    }
+
+    const userResponseObject = user.getResponseObject()
+
+    return response.json({ user: userResponseObject })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const insertUser: RequestHandler = async (request, response, next) => {
+  try {
     if (request.body.isAdmin === true) {
       throw new ApiError('Administrators cannot be created', 400)
     }
@@ -15,19 +31,13 @@ export default class UserController {
     const token = savedUser.createToken()
 
     return response.json({ token })
+  } catch (error) {
+    next(error)
   }
+}
 
-  static getSingle: RequestHandler = async (request, response) => {
-    const user = await User.findById(request.params._id)
-
-    if (!user) {
-      throw new ApiError('That user could not be found', 404)
-    }
-
-    return response.json({ user })
-  }
-
-  static patchSingle: RequestHandler = async (request, response) => {
+export const patchUser: RequestHandler = async (request, response, next) => {
+  try {
     if (!request.user) {
       throw new ApiError('You need to be logged in to update users', 401)
     }
@@ -53,10 +63,16 @@ export default class UserController {
 
     const savedUser = await user.set(request.body).save()
 
-    return response.json({ user: savedUser })
-  }
+    const savedUserResponseObject = savedUser.getResponseObject()
 
-  static deleteSingle: RequestHandler = async (request, response) => {
+    return response.json({ user: savedUserResponseObject })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const deleteUser: RequestHandler = async (request, response, next) => {
+  try {
     if (!request.user) {
       throw new ApiError('You need to be logged in to delete users', 401)
     }
@@ -82,5 +98,7 @@ export default class UserController {
     }
 
     return response.json({ message: 'The user was successfully deleted' })
+  } catch (error) {
+    next(error)
   }
 }

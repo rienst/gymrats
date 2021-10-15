@@ -31,10 +31,10 @@ const NotVerified: FC = () => {
               ></path>
             </svg>
 
-            <h1 className="h4">
+            <p className="mb-4">
               Your email address is not yet verified. We have sent you an email
               with a verification link.
-            </h1>
+            </p>
 
             <div className="mb-3">
               <ResendVerificationEmail />

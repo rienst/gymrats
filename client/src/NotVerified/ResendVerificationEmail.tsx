@@ -1,7 +1,5 @@
 import { FC, useContext, useState } from 'react'
 import { authContext } from '../shared/AuthContext'
-import Loader from '../shared/Loader'
-import Alert from '../shared/Alert'
 
 const ResendVerificationEmail: FC = () => {
   const [loading, setLoading] = useState(false)
@@ -38,7 +36,7 @@ const ResendVerificationEmail: FC = () => {
         return
       }
 
-      setMessage(() => 'A verification email has been sent')
+      setMessage(() => 'A new verification email has been sent')
     } catch (error) {
       setError(() => 'Could not send verification email')
     } finally {
