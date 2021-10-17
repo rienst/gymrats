@@ -1,17 +1,31 @@
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
+import Loader from '../shared/Loader'
+import Wrapper from '../shared/Wrapper'
+import useQuery from '../shared/useQuery'
 
 const VerifyEmail: FC = () => {
-  return (
-    <div className="py-5">
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-sm-8 col-md-7 col-lg-6 col-xl-5 col-xxl-4">
-            123
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string>()
+
+  const query = useQuery('token')
+
+  useEffect(() => {
+    setLoading(true)
+    setError(undefined)
+
+    if (!query) {
+    }
+  }, [query])
+
+  if (loading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    )
+  }
+
+  return <Wrapper>{error && error}</Wrapper>
 }
 
 export default VerifyEmail

@@ -16,7 +16,7 @@ export interface UserDocument extends User, mongoose.Document {
   createToken: () => string
   sendVerificationEmail: () => Promise<boolean>
   markAsVerified: () => Promise<true>
-  getResponseObject: () => User
+  getClientObject: () => User
   wasNew?: boolean
   password: string
 }
@@ -74,7 +74,7 @@ userSchema.methods.sendVerificationEmail = async function () {
   const verificationLink = `${server.url}/verify-email?token=${verificationToken}`
 
   const mailSent = await mailer.sendMail({
-    to: 'rien@rsdigitalstrategy.com',
+    to: this.email,
     subject: 'Please confirm your password',
     text: `Thank you for signing up to Gymrats! Please confirm your email address using the following link:\n\n${verificationLink}`,
     html: `<p>Thank you for signing up to Gymrats! Please confirm your email address using <a href="${verificationLink}">this link</a>.</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
@@ -91,8 +91,11 @@ userSchema.methods.markAsVerified = async function () {
   return true
 }
 
-userSchema.methods.getResponseObject = async function () {
-  return this.toObject<User>()
+userSchema.methods.getClientObject = function () {
+  const userMinusPassword = this.set('password', undefined)
+  const clientObject: User = userMinusPassword.toObject()
+
+  return clientObject
 }
 
 userSchema.pre<UserDocument>('save', async function (next) {

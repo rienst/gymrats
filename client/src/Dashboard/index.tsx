@@ -1,12 +1,13 @@
-import { FC, useContext } from 'react'
+import { FC } from 'react'
 import { Redirect } from 'react-router-dom'
-import { authContext } from '../shared/AuthContext'
+import useAuth from '../shared/useAuth'
+import Wrapper from '../shared/Wrapper'
 
 const Dashboard: FC = () => {
-  const { user, updateToken } = useContext(authContext)
+  const { user, setToken } = useAuth()
 
   if (!user) {
-    return <Redirect to="/login" />
+    return <Redirect to="/log-in" />
   }
 
   if (!user.isVerified) {
@@ -14,22 +15,16 @@ const Dashboard: FC = () => {
   }
 
   return (
-    <div className="py-5">
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-sm-8 col-md-7 col-lg-6 col-xl-5 col-xxl-4">
-            <p>Logged in as {user.name || user.email}</p>
+    <Wrapper>
+      <p>Logged in as {user.name || user.email}</p>
 
-            <button
-              className="btn btn-outline-danger"
-              onClick={updateToken ? () => updateToken() : undefined}
-            >
-              Log out
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <button
+        className="btn btn-outline-danger"
+        onClick={setToken ? () => setToken(undefined) : undefined}
+      >
+        Log out
+      </button>
+    </Wrapper>
   )
 }
 

@@ -1,27 +1,29 @@
 import { FC } from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import ReactDOM from 'react-dom'
-import AuthProvider from './shared/AuthContext'
+import { AuthProvider } from './shared/useAuth'
 import LogIn from './LogIn'
 import SignUp from './SignUp'
+import Welcome from './Welcome'
 import NotVerified from './NotVerified'
 import VerifyEmail from './VerifyEmail'
 import Dashboard from './Dashboard'
-import './index.scss'
+import './styles/index.scss'
 
 const App: FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
         <Switch>
-          <Route exact path="/login" component={LogIn} />
-          <Route exact path="/signup" component={SignUp} />
+          <Route exact path="/log-in" component={LogIn} />
+          <Route exact path="/sign-up" component={SignUp} />
+          <Route exact path="/welcome" component={Welcome} />
           <Route exact path="/not-verified" component={NotVerified} />
           <Route exact path="/verify-email" component={VerifyEmail} />
           <Route exact path="/dashboard" component={Dashboard} />
         </Switch>
-      </AuthProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

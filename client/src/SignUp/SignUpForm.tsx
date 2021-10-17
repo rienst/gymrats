@@ -1,6 +1,6 @@
-import { FC, useState, useContext } from 'react'
+import { FC, useState } from 'react'
 import { Redirect } from 'react-router-dom'
-import { authContext } from '../shared/AuthContext'
+import useAuth from '../shared/useAuth'
 import Alert from '../shared/Alert'
 import Loader from '../shared/Loader'
 
@@ -14,7 +14,7 @@ const SignUpForm: FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const { user, updateToken } = useContext(authContext)
+  const { user, setToken } = useAuth()
 
   const signUp = async () => {
     try {
@@ -22,7 +22,7 @@ const SignUpForm: FC = () => {
       setValidationErrors(() => undefined)
       setLoading(() => true)
 
-      if (!updateToken) {
+      if (!setToken) {
         setError(() => 'Could not sign up, please try again')
         setLoading(() => false)
         return
@@ -45,6 +45,7 @@ const SignUpForm: FC = () => {
         setError(() => data.error)
         setValidationErrors(() => data.validationErrors)
         setLoading(() => false)
+        return
       }
 
       const tokenFromResponse = data.token
@@ -55,7 +56,7 @@ const SignUpForm: FC = () => {
         return
       }
 
-      updateToken(tokenFromResponse)
+      setToken(tokenFromResponse)
     } catch (error) {
       setError(() => 'Could not sign up, please try again')
       setValidationErrors(() => undefined)

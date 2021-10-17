@@ -10,9 +10,9 @@ export const getUser: RequestHandler = async (request, response, next) => {
       throw new ApiError('That user could not be found', 404)
     }
 
-    const userResponseObject = user.getResponseObject()
+    const userClientObject = user.getClientObject()
 
-    return response.json({ user: userResponseObject })
+    return response.json({ user: userClientObject })
   } catch (error) {
     next(error)
   }
@@ -63,9 +63,9 @@ export const patchUser: RequestHandler = async (request, response, next) => {
 
     const savedUser = await user.set(request.body).save()
 
-    const savedUserResponseObject = savedUser.getResponseObject()
+    const savedUserClientObject = savedUser.getClientObject()
 
-    return response.json({ user: savedUserResponseObject })
+    return response.json({ user: savedUserClientObject })
   } catch (error) {
     next(error)
   }

@@ -1,11 +1,11 @@
-import { FC, useContext, useState } from 'react'
-import { authContext } from '../shared/AuthContext'
+import { FC, useState } from 'react'
+import useAuth from '../useAuth'
 
 const ResendVerificationEmail: FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [message, setMessage] = useState<string>()
-  const { token } = useContext(authContext)
+  const { token } = useAuth()
 
   const resendVerificationEmail = async () => {
     try {
@@ -45,7 +45,7 @@ const ResendVerificationEmail: FC = () => {
   }
 
   return (
-    <div>
+    <>
       {!message && (
         <button
           className="btn btn-primary"
@@ -68,9 +68,9 @@ const ResendVerificationEmail: FC = () => {
         </button>
       )}
 
-      {error && <p className="text-danger mt-1 mb-0">{error}</p>}
       {message && <p className="text-success mb-0">{message}</p>}
-    </div>
+      {error && <p className="text-danger mt-1 mb-0">{error}</p>}
+    </>
   )
 }
 

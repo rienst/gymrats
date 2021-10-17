@@ -48,9 +48,9 @@ export const getUserFromToken: RequestHandler = async (
       throw new ApiError('You are not logged in', 403)
     }
 
-    const userResponseObject = request.user.getResponseObject()
+    const clientUserObject = request.user.getClientObject()
 
-    return response.json({ user: userResponseObject })
+    return response.json({ user: clientUserObject })
   } catch (error) {
     return next(error)
   }

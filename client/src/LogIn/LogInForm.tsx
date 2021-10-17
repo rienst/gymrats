@@ -1,6 +1,6 @@
-import { FC, useState, useContext } from 'react'
+import { FC, useState } from 'react'
 import { Redirect } from 'react-router-dom'
-import { authContext } from '../shared/AuthContext'
+import useAuth from '../shared/useAuth'
 import Alert from '../shared/Alert'
 import Loader from '../shared/Loader'
 
@@ -10,7 +10,7 @@ const LogInForm: FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const { user, updateToken } = useContext(authContext)
+  const { user, setToken } = useAuth()
 
   const logIn = async () => {
     try {
@@ -19,7 +19,7 @@ const LogInForm: FC = () => {
 
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      if (!updateToken) {
+      if (!setToken) {
         setError(() => 'Could not log in, please try again')
         setLoading(() => false)
         return
@@ -52,7 +52,7 @@ const LogInForm: FC = () => {
         return
       }
 
-      updateToken(tokenFromResponse)
+      setToken(tokenFromResponse)
     } catch (error) {
       setError(() => 'Could not log in, please try again')
     } finally {
