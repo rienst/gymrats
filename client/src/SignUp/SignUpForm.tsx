@@ -6,11 +6,14 @@ import Loader from '../shared/Loader'
 
 const SignUpForm: FC = () => {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>()
-  const [validationErrors, setValidationErrors] = useState<{
-    email?: string
-    password?: string
-  }>()
+  const [error, setError] = useState<string | false>(false)
+  const [validationErrors, setValidationErrors] = useState<
+    | {
+        email?: string
+        password?: string
+      }
+    | false
+  >(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -18,13 +21,13 @@ const SignUpForm: FC = () => {
 
   const signUp = async () => {
     try {
-      setError(() => undefined)
-      setValidationErrors(() => undefined)
-      setLoading(() => true)
+      setError(false)
+      setValidationErrors(false)
+      setLoading(true)
 
       if (!setToken) {
-        setError(() => 'Could not sign up, please try again')
-        setLoading(() => false)
+        setError('Could not sign up, please try again')
+        setLoading(false)
         return
       }
 
@@ -42,26 +45,26 @@ const SignUpForm: FC = () => {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(() => data.error)
-        setValidationErrors(() => data.validationErrors)
-        setLoading(() => false)
+        setError(data.error)
+        setValidationErrors(data.validationErrors)
+        setLoading(false)
         return
       }
 
       const tokenFromResponse = data.token
 
       if (!tokenFromResponse) {
-        setError(() => 'Could not sign up, please try again')
-        setLoading(() => false)
+        setError('Could not sign up, please try again')
+        setLoading(false)
         return
       }
 
       setToken(tokenFromResponse)
     } catch (error) {
-      setError(() => 'Could not sign up, please try again')
-      setValidationErrors(() => undefined)
+      setError('Could not sign up, please try again')
+      setValidationErrors(false)
     } finally {
-      setLoading(() => false)
+      setLoading(false)
     }
   }
 
@@ -83,7 +86,7 @@ const SignUpForm: FC = () => {
         <Alert
           type="danger"
           message={error}
-          onDismiss={setError ? () => setError(() => undefined) : undefined}
+          onDismiss={setError ? () => setError(false) : undefined}
         />
       )}
 

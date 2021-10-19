@@ -1,6 +1,6 @@
-import { FC, useState, useRef } from 'react'
+import { FC, useState, useRef, TransitionEvent } from 'react'
 
-type Props = {
+interface Props {
   type?: 'primary' | 'success' | 'warning' | 'danger'
   message?: string
   onDismiss?: () => any
@@ -21,28 +21,31 @@ const Alert: FC<Props> = ({ type = 'primary', message, onDismiss }) => {
     }
   }
 
+  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (!onDismiss) {
+      return
+    }
+
+    // If the transition is not on the alert, don't fire the callback
+    // It is probably a transition of the button focussing or blurring
+    if (alertRef.current !== event.target) {
+      return
+    }
+
+    onDismiss()
+  }
+
+  const handleDismiss = () => {
+    setVisible(false)
+  }
+
   return (
     <>
       {message && (
         <div
           className={alertClasses.join(' ')}
           ref={alertRef}
-          onTransitionEnd={event => {
-            // After the alert fades out, it should fire the onDismiss callback
-
-            // If there is no onDismiss callback, don't bother
-            if (!onDismiss) {
-              return
-            }
-
-            // If the transition is not on the alert, don't fire the callback
-            // It is probably the button focussing or blurring
-            if (alertRef.current !== event.target) {
-              return
-            }
-
-            onDismiss()
-          }}
+          onTransitionEnd={handleTransitionEnd}
           role="alert"
         >
           {message}
@@ -50,7 +53,7 @@ const Alert: FC<Props> = ({ type = 'primary', message, onDismiss }) => {
             <button
               className="btn-close"
               aria-label="Close"
-              onClick={() => setVisible(() => false)}
+              onClick={handleDismiss}
             ></button>
           )}
         </div>

@@ -1,6 +1,8 @@
 import { FC } from 'react'
 
-type Props = { message?: string }
+interface Props {
+  message?: string
+}
 
 const Loader: FC<Props> = ({ message }) => {
   return (

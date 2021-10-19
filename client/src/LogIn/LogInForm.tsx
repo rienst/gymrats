@@ -1,62 +1,62 @@
-import { FC, useState } from 'react'
+import { FC, useState, ChangeEvent } from 'react'
 import { Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
+import { getTokenFromCredentials } from '../shared/serverUtilities'
 import Alert from '../shared/Alert'
 import Loader from '../shared/Loader'
 
 const LogInForm: FC = () => {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>()
+  const [error, setError] = useState<string | false>(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const { user, setToken } = useAuth()
 
-  const logIn = async () => {
+  const handleClearError = () => {
+    setError(false)
+  }
+
+  const handleSetEmail = (event: ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value)
+  }
+
+  const handleSetPassword = (event: ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value)
+  }
+
+  const handleLogIn = async () => {
     try {
-      setLoading(() => true)
-      setError(() => undefined)
+      setLoading(true)
+      setError(error)
 
       await new Promise(resolve => setTimeout(resolve, 500))
 
       if (!setToken) {
-        setError(() => 'Could not log in, please try again')
-        setLoading(() => false)
+        setError('Could not log in, please try again')
+        setLoading(false)
         return
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/auth`,
-        {
-          method: 'post',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      )
+      const response = await getTokenFromCredentials(email, password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(() => data.error)
-        setLoading(() => false)
+      if (response.error) {
+        setError(response.error)
+        setLoading(false)
         return
       }
 
-      const tokenFromResponse = data.token
-
-      if (!tokenFromResponse) {
-        setError(() => 'Could not log in, please try again')
-        setLoading(() => false)
+      if (!response.token) {
+        setError('Could not log in, please try again')
+        setLoading(false)
         return
       }
 
-      setToken(tokenFromResponse)
+      setToken(response.token)
     } catch (error) {
-      setError(() => 'Could not log in, please try again')
+      setError('Could not log in, please try again')
     } finally {
-      setLoading(() => false)
+      setLoading(false)
     }
   }
 
@@ -75,11 +75,7 @@ const LogInForm: FC = () => {
   return (
     <div className="mb-4">
       {error && (
-        <Alert
-          type="danger"
-          message={error}
-          onDismiss={setError ? () => setError(() => undefined) : undefined}
-        />
+        <Alert type="danger" message={error} onDismiss={handleClearError} />
       )}
 
       <div className="mb-3">
@@ -92,7 +88,7 @@ const LogInForm: FC = () => {
           name="email"
           id="email"
           value={email}
-          onChange={event => setEmail(() => event.target.value)}
+          onChange={handleSetEmail}
         />
       </div>
 
@@ -106,11 +102,11 @@ const LogInForm: FC = () => {
           name="password"
           id="password"
           value={password}
-          onChange={event => setPassword(() => event.target.value)}
+          onChange={handleSetPassword}
         />
       </div>
 
-      <button className="btn btn-primary d-block w-100" onClick={() => logIn()}>
+      <button className="btn btn-primary d-block w-100" onClick={handleLogIn}>
         Log in
       </button>
     </div>

@@ -6,22 +6,27 @@ import Wrapper from '../shared/Wrapper'
 const Dashboard: FC = () => {
   const { user, setToken } = useAuth()
 
+  const handleLogOut = () => {
+    if (!setToken) {
+      return
+    }
+
+    setToken(undefined)
+  }
+
   if (!user) {
     return <Redirect to="/log-in" />
   }
 
   if (!user.isVerified) {
-    return <Redirect to="/not-verified" />
+    return <Redirect to="/welcome" />
   }
 
   return (
     <Wrapper>
       <p>Logged in as {user.name || user.email}</p>
 
-      <button
-        className="btn btn-outline-danger"
-        onClick={setToken ? () => setToken(undefined) : undefined}
-      >
+      <button className="btn btn-outline-danger" onClick={handleLogOut}>
         Log out
       </button>
     </Wrapper>

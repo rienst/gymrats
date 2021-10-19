@@ -5,20 +5,27 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { User } from '../../types'
 import Loader from '../Loader'
+import { getUserFromToken } from '../serverUtilities'
 
-type AuthContextProps = {
-  user?: User
-  token?: string
-  setToken: React.Dispatch<React.SetStateAction<string | undefined>>
+export interface User {
+  _id: string
+  email: string
+  name?: string
+  isAdmin: boolean
+  isVerified: boolean
+  __v: number
 }
 
-const authContext = createContext<Partial<AuthContextProps>>({})
+interface AuthContextProps {
+  user?: User
+  token?: string
+  setToken?: React.Dispatch<React.SetStateAction<string | undefined>>
+}
+
+const authContext = createContext<AuthContextProps>({})
 
 const useAuth = () => useContext(authContext)
-
-export default useAuth
 
 export const AuthProvider: FC = ({ children }) => {
   const [loading, setLoading] = useState(true)
@@ -27,25 +34,19 @@ export const AuthProvider: FC = ({ children }) => {
 
   const tokenLocalStorageKey = process.env.REACT_APP_LS_TOKEN_KEY || 'token'
 
-  const getUserFromDatabase = async (token: string) => {
+  const setUserFromToken = async (token: string) => {
     setLoading(true)
 
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/auth`, {
-      headers: {
-        Authorization: token,
-      },
-    })
+    const response = await getUserFromToken(token)
 
-    const data = await response.json()
-
-    if (!response.ok || !data.user) {
+    if (response.error || !response.user) {
       setUser(undefined)
-      return false
+      setToken(undefined)
+      setLoading(false)
+      return
     }
 
-    const user: User = data.user
-
-    setUser(user)
+    setUser(response.user)
     setLoading(false)
   }
 
@@ -59,27 +60,23 @@ export const AuthProvider: FC = ({ children }) => {
 
     setToken(tokenFromLocalStorage)
 
-    getUserFromDatabase(tokenFromLocalStorage)
+    setUserFromToken(tokenFromLocalStorage)
   }, [tokenLocalStorageKey])
 
   useEffect(() => {
     if (!token) {
       localStorage.removeItem(tokenLocalStorageKey)
+      setUser(undefined)
       return
     }
 
     localStorage.setItem(tokenLocalStorageKey, token)
 
-    getUserFromDatabase(token)
+    setUserFromToken(token)
   }, [token, tokenLocalStorageKey])
-
-  useEffect(() => {
-    console.log(loading, token, user)
-  })
 
   const value = {
     user,
-    token,
     setToken,
   }
 
@@ -93,3 +90,5 @@ export const AuthProvider: FC = ({ children }) => {
 
   return <authContext.Provider value={value}>{children}</authContext.Provider>
 }
+
+export default useAuth

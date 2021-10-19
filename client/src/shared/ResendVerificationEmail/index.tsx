@@ -3,18 +3,19 @@ import useAuth from '../useAuth'
 
 const ResendVerificationEmail: FC = () => {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>()
-  const [message, setMessage] = useState<string>()
+  const [error, setError] = useState<string | false>(false)
+  const [message, setMessage] = useState<string | false>(false)
   const { token } = useAuth()
 
-  const resendVerificationEmail = async () => {
+  const handleResendVerificationEmail = async () => {
     try {
-      setLoading(() => true)
-      setError(() => undefined)
-      setMessage(() => undefined)
+      setLoading(true)
+      setError(false)
+      setMessage(false)
 
       if (!token) {
-        setLoading(() => false)
+        setError('Could not send verification email')
+        setLoading(false)
         return
       }
 
@@ -31,16 +32,16 @@ const ResendVerificationEmail: FC = () => {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(() => data.error)
-        setLoading(() => false)
+        setError(data.error)
+        setLoading(false)
         return
       }
 
-      setMessage(() => 'A new verification email has been sent')
+      setMessage('A new verification email has been sent')
     } catch (error) {
-      setError(() => 'Could not send verification email')
+      setError('Could not send verification email')
     } finally {
-      setLoading(() => false)
+      setLoading(false)
     }
   }
 
@@ -49,7 +50,7 @@ const ResendVerificationEmail: FC = () => {
       {!message && (
         <button
           className="btn btn-primary"
-          onClick={() => resendVerificationEmail()}
+          onClick={handleResendVerificationEmail}
           disabled={loading}
         >
           {loading ? (
@@ -59,8 +60,7 @@ const ResendVerificationEmail: FC = () => {
                 role="status"
                 aria-hidden="true"
               ></span>
-              <span className="visually-hidden">Loading...</span>Sending
-              email...
+              Sending email...
             </>
           ) : (
             'Resend verification email'
