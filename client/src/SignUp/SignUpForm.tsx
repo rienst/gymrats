@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useState, ChangeEvent } from 'react'
 import { Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
 import Alert from '../shared/Alert'
@@ -19,17 +19,19 @@ const SignUpForm: FC = () => {
 
   const { user, setToken } = useAuth()
 
-  const signUp = async () => {
+  const handleSetEmail = (event: ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value)
+  }
+
+  const handleSetPassword = (event: ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value)
+  }
+
+  const handleSignUp = async () => {
     try {
       setError(false)
       setValidationErrors(false)
       setLoading(true)
-
-      if (!setToken) {
-        setError('Could not sign up, please try again')
-        setLoading(false)
-        return
-      }
 
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/users`,
@@ -102,7 +104,7 @@ const SignUpForm: FC = () => {
           name="email"
           id="email"
           value={email}
-          onChange={event => setEmail(() => event.target.value)}
+          onChange={handleSetEmail}
         />
         {validationErrors && validationErrors.email && (
           <div className="invalid-feedback">{validationErrors.email}</div>
@@ -121,7 +123,7 @@ const SignUpForm: FC = () => {
           name="password"
           id="password"
           value={password}
-          onChange={event => setPassword(() => event.target.value)}
+          onChange={handleSetPassword}
         />
         {validationErrors && validationErrors.password && (
           <div className="invalid-feedback">{validationErrors.password}</div>
@@ -130,7 +132,7 @@ const SignUpForm: FC = () => {
 
       <button
         className="btn btn-outline-primary d-block w-100"
-        onClick={() => signUp()}
+        onClick={handleSignUp}
       >
         Sign up
       </button>

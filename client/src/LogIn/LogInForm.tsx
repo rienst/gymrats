@@ -32,12 +32,6 @@ const LogInForm: FC = () => {
 
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      if (!setToken) {
-        setError('Could not log in, please try again')
-        setLoading(false)
-        return
-      }
-
       const response = await getTokenFromCredentials(email, password)
 
       if (response.error) {

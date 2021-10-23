@@ -7,10 +7,6 @@ const Dashboard: FC = () => {
   const { user, setToken } = useAuth()
 
   const handleLogOut = () => {
-    if (!setToken) {
-      return
-    }
-
     setToken(undefined)
   }
 

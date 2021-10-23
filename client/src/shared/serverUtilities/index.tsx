@@ -20,10 +20,20 @@ export const getTokenFromCredentials = async (
   })
 }
 
-export const getUserFromToken = async (token: string) => {
+export const getUserFromToken = async (token?: string) => {
   return await makeRequest({
     method: 'get',
     endpoint: '/auth',
     token,
   })
 }
+
+export const postSendVerificationMailRequest = async (token?: string) => {
+  return await makeRequest({
+    method: 'post',
+    endpoint: '/auth/send-verification-email',
+    token,
+  })
+}
+
+export * from './makeRequest'

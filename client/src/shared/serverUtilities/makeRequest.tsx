@@ -7,7 +7,7 @@ interface RequestDetails {
   body?: any
 }
 
-interface ResponseData {
+export interface ResponseData {
   error?: string
   message?: string
   token?: string
@@ -16,7 +16,6 @@ interface ResponseData {
 
 const makeRequest = async (requestDetails: RequestDetails) => {
   const headers: HeadersInit = {
-    method: requestDetails.method,
     'Content-Type': 'application/json',
   }
 
@@ -27,6 +26,7 @@ const makeRequest = async (requestDetails: RequestDetails) => {
   const response = await fetch(
     process.env.REACT_APP_API_BASE_URL + requestDetails.endpoint,
     {
+      method: requestDetails.method,
       headers,
       body: JSON.stringify(requestDetails.body),
     }

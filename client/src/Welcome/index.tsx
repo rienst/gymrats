@@ -5,10 +5,14 @@ import ResendVerificationEmail from '../shared/ResendVerificationEmail'
 import Wrapper from '../shared/Wrapper'
 
 const Welcome: FC = () => {
-  const { user } = useAuth()
+  const { user, setToken } = useAuth()
 
   if (!user) {
     return <Redirect to="/log-in" />
+  }
+
+  const handleLogOut = () => {
+    setToken(undefined)
   }
 
   return (
@@ -22,7 +26,18 @@ const Welcome: FC = () => {
               Please check your inbox to confirm your email address.
             </p>
 
-            <ResendVerificationEmail />
+            <div className="mb-2">
+              <ResendVerificationEmail />
+            </div>
+
+            <p className="mb-0">
+              <button
+                onClick={handleLogOut}
+                className="btn btn-link text-danger"
+              >
+                Log out
+              </button>
+            </p>
           </>
         )}
 

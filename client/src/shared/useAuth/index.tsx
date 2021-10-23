@@ -6,7 +6,11 @@ import React, {
   useContext,
 } from 'react'
 import Loader from '../Loader'
-import { getUserFromToken } from '../serverUtilities'
+import {
+  getUserFromToken,
+  postSendVerificationMailRequest,
+  ResponseData,
+} from '../serverUtilities'
 
 export interface User {
   _id: string
@@ -19,11 +23,13 @@ export interface User {
 
 interface AuthContextProps {
   user?: User
-  token?: string
-  setToken?: React.Dispatch<React.SetStateAction<string | undefined>>
+  setToken: React.Dispatch<React.SetStateAction<string | undefined>>
+  sendVerificationMail: () => Promise<ResponseData>
 }
 
-const authContext = createContext<AuthContextProps>({})
+const authContext = createContext<AuthContextProps>(
+  null as any as AuthContextProps
+)
 
 const useAuth = () => useContext(authContext)
 
@@ -33,6 +39,10 @@ export const AuthProvider: FC = ({ children }) => {
   const [user, setUser] = useState<User>()
 
   const tokenLocalStorageKey = process.env.REACT_APP_LS_TOKEN_KEY || 'token'
+
+  const sendVerificationMail = async () => {
+    return await postSendVerificationMailRequest(token)
+  }
 
   const setUserFromToken = async (token: string) => {
     setLoading(true)
@@ -78,6 +88,7 @@ export const AuthProvider: FC = ({ children }) => {
   const value = {
     user,
     setToken,
+    sendVerificationMail,
   }
 
   if (loading) {

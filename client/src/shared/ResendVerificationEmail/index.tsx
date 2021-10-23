@@ -5,7 +5,7 @@ const ResendVerificationEmail: FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | false>(false)
   const [message, setMessage] = useState<string | false>(false)
-  const { token } = useAuth()
+  const { sendVerificationMail } = useAuth()
 
   const handleResendVerificationEmail = async () => {
     try {
@@ -13,26 +13,10 @@ const ResendVerificationEmail: FC = () => {
       setError(false)
       setMessage(false)
 
-      if (!token) {
-        setError('Could not send verification email')
-        setLoading(false)
-        return
-      }
+      const response = await sendVerificationMail()
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/auth/send-verification-email`,
-        {
-          method: 'post',
-          headers: {
-            Authorization: token,
-          },
-        }
-      )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error)
+      if (response.error) {
+        setError(response.error)
         setLoading(false)
         return
       }
