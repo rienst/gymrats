@@ -1,5 +1,4 @@
 import { FC, useState, ChangeEvent } from 'react'
-import { Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
 import { getTokenFromCredentials } from '../shared/serverUtilities'
 import Alert from '../shared/Alert'
@@ -11,7 +10,7 @@ const LogInForm: FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const { user, setToken } = useAuth()
+  const { setToken } = useAuth()
 
   const handleClearError = () => {
     setError(false)
@@ -28,7 +27,7 @@ const LogInForm: FC = () => {
   const handleLogIn = async () => {
     try {
       setLoading(true)
-      setError(error)
+      setError(false)
 
       await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -55,21 +54,15 @@ const LogInForm: FC = () => {
   }
 
   if (loading) {
-    return (
-      <div className="mb-4">
-        <Loader />
-      </div>
-    )
-  }
-
-  if (user) {
-    return <Redirect to="/dashboard" />
+    return <Loader />
   }
 
   return (
-    <div className="mb-4">
+    <>
       {error && (
-        <Alert type="danger" message={error} onDismiss={handleClearError} />
+        <Alert type="danger" onDismiss={handleClearError}>
+          {error}
+        </Alert>
       )}
 
       <div className="mb-3">
@@ -103,7 +96,7 @@ const LogInForm: FC = () => {
       <button className="btn btn-primary d-block w-100" onClick={handleLogIn}>
         Log in
       </button>
-    </div>
+    </>
   )
 }
 

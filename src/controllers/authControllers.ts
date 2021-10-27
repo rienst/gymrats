@@ -115,7 +115,7 @@ export const sendVerificationEmail: RequestHandler = async (
 export const verifyEmail: RequestHandler = async (request, response, next) => {
   try {
     if (!request.body.token) {
-      throw new ApiError('Please provide a verification token', 400)
+      throw new ApiError('Could not validate your request', 400)
     }
 
     const tokenData = jsonwebtoken.verify(request.body.token, server.jwtSecret)
@@ -139,6 +139,66 @@ export const verifyEmail: RequestHandler = async (request, response, next) => {
     await user.markAsVerified()
 
     return response.json({ message: 'Your email address has been verified' })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const sendResetPasswordEmail: RequestHandler = async (
+  request,
+  response,
+  next
+) => {
+  try {
+    if (!request.body.email) {
+      throw new ApiError('Please provide an email', 400)
+    }
+
+    const mailSent = await User.sendResetPasswordEmail(request.body.email)
+
+    if (!mailSent) {
+      throw new ApiError('The email could not be sent', 500)
+    }
+
+    return response.json({ message: 'The password reset email has been sent' })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const resetPassword: RequestHandler = async (
+  request,
+  response,
+  next
+) => {
+  try {
+    if (!request.body.token) {
+      throw new ApiError('Could not validate your request', 400)
+    }
+
+    const tokenData = jsonwebtoken.verify(request.body.token, server.jwtSecret)
+
+    if (
+      typeof tokenData === 'string' ||
+      tokenData.action !== 'resetPassword' ||
+      !tokenData.email
+    ) {
+      throw new ApiError('That token is invalid', 400)
+    }
+
+    const user = await User.findOne({
+      email: tokenData.email,
+    })
+
+    if (!user) {
+      throw new ApiError('That user could not be found', 400)
+    }
+
+    user.password = request.body.newPassword
+
+    await user.save()
+
+    return response.json({ message: 'Your password has been reset' })
   } catch (error) {
     next(error)
   }

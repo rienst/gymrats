@@ -2,11 +2,10 @@ import { FC, useState, useRef, TransitionEvent } from 'react'
 
 interface Props {
   type?: 'primary' | 'success' | 'warning' | 'danger'
-  message?: string
   onDismiss?: () => any
 }
 
-const Alert: FC<Props> = ({ type = 'primary', message, onDismiss }) => {
+const Alert: FC<Props> = ({ type = 'primary', onDismiss, children }) => {
   const [visible, setVisible] = useState(true)
 
   const alertRef = useRef(null)
@@ -40,25 +39,21 @@ const Alert: FC<Props> = ({ type = 'primary', message, onDismiss }) => {
   }
 
   return (
-    <>
-      {message && (
-        <div
-          className={alertClasses.join(' ')}
-          ref={alertRef}
-          onTransitionEnd={handleTransitionEnd}
-          role="alert"
-        >
-          {message}
-          {onDismiss && (
-            <button
-              className="btn-close"
-              aria-label="Close"
-              onClick={handleDismiss}
-            ></button>
-          )}
-        </div>
+    <div
+      className={alertClasses.join(' ')}
+      role="alert"
+      ref={alertRef}
+      onTransitionEnd={handleTransitionEnd}
+    >
+      <div>{children}</div>
+      {onDismiss && (
+        <button
+          className="btn-close"
+          aria-label="Close"
+          onClick={handleDismiss}
+        ></button>
       )}
-    </>
+    </div>
   )
 }
 

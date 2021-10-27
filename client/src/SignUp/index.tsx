@@ -1,23 +1,26 @@
 import { FC } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
+import useAuth from '../shared/useAuth'
 import Wrapper from '../shared/Wrapper'
 import SignUpForm from './SignUpForm'
 
 const SignUp: FC = () => {
+  const { user } = useAuth()
+
+  if (user) {
+    return <Redirect to="/dashboard" />
+  }
+
   return (
     <Wrapper>
       <h1 className="text-center">Gymrats</h1>
 
-      <SignUpForm />
+      <div className="mb-4">
+        <SignUpForm />
+      </div>
 
-      <p className="text-center">
+      <p className="text-center mb-0">
         Already have an account? <Link to="/log-in">Log in</Link>
-      </p>
-
-      <p className="small text-muted text-center mb-3">
-        <Link className="text-reset" to="/log-in">
-          Reset password
-        </Link>
       </p>
     </Wrapper>
   )

@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom'
 import { AuthProvider } from './shared/useAuth'
 import LogIn from './LogIn'
 import SignUp from './SignUp'
+import ForgotPassword from './ForgotPassword'
+import ResetPassword from './ResetPassword'
 import Welcome from './Welcome'
 import VerifyEmail from './VerifyEmail'
 import Dashboard from './Dashboard'
@@ -16,6 +18,8 @@ const App: FC = () => {
         <Switch>
           <Route exact path="/log-in" component={LogIn} />
           <Route exact path="/sign-up" component={SignUp} />
+          <Route exact path="/forgot-password" component={ForgotPassword} />
+          <Route exact path="/reset-password" component={ResetPassword} />
           <Route exact path="/welcome" component={Welcome} />
           <Route exact path="/verify-email" component={VerifyEmail} />
           <Route exact path="/dashboard" component={Dashboard} />

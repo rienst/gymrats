@@ -10,6 +10,14 @@ export const database = new Database()
 export const mailer = new Mailer()
 
 database.connect()
-server.launch()
+
+const closeServer = () => {
+  server.close(process.exit)
+}
+
+process.on('uncaughtException', closeServer)
+process.on('SIGINT', closeServer)
+process.on('SIGTERM', closeServer)
+process.on('SIGUSR2', closeServer)
 
 export default server

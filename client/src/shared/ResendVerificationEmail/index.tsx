@@ -5,7 +5,7 @@ const ResendVerificationEmail: FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | false>(false)
   const [message, setMessage] = useState<string | false>(false)
-  const { sendVerificationMail } = useAuth()
+  const { sendVerificationEmail } = useAuth()
 
   const handleResendVerificationEmail = async () => {
     try {
@@ -13,7 +13,7 @@ const ResendVerificationEmail: FC = () => {
       setError(false)
       setMessage(false)
 
-      const response = await sendVerificationMail()
+      const response = await sendVerificationEmail()
 
       if (response.error) {
         setError(response.error)

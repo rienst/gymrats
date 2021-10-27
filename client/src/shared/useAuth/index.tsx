@@ -8,7 +8,7 @@ import React, {
 import Loader from '../Loader'
 import {
   getUserFromToken,
-  postSendVerificationMailRequest,
+  postSendVerificationEmailRequest,
   ResponseData,
 } from '../serverUtilities'
 
@@ -24,7 +24,7 @@ export interface User {
 interface AuthContextProps {
   user?: User
   setToken: React.Dispatch<React.SetStateAction<string | undefined>>
-  sendVerificationMail: () => Promise<ResponseData>
+  sendVerificationEmail: () => Promise<ResponseData>
 }
 
 const authContext = createContext<AuthContextProps>(
@@ -40,8 +40,8 @@ export const AuthProvider: FC = ({ children }) => {
 
   const tokenLocalStorageKey = process.env.REACT_APP_LS_TOKEN_KEY || 'token'
 
-  const sendVerificationMail = async () => {
-    return await postSendVerificationMailRequest(token)
+  const sendVerificationEmail = async () => {
+    return await postSendVerificationEmailRequest(token)
   }
 
   const setUserFromToken = async (token: string) => {
@@ -88,7 +88,7 @@ export const AuthProvider: FC = ({ children }) => {
   const value = {
     user,
     setToken,
-    sendVerificationMail,
+    sendVerificationEmail,
   }
 
   if (loading) {

@@ -21,6 +21,10 @@ export interface UserDocument extends User, mongoose.Document {
   password: string
 }
 
+interface UserModel extends mongoose.Model<UserDocument> {
+  sendResetPasswordEmail: (email: string) => Promise<boolean>
+}
+
 const userSchema: mongoose.Schema<UserDocument> = new mongoose.Schema({
   email: {
     type: String,
@@ -76,8 +80,30 @@ userSchema.methods.sendVerificationEmail = async function () {
   const mailSent = await mailer.sendMail({
     to: this.email,
     subject: 'Please confirm your password',
-    text: `Thank you for signing up to Gymrats! Please confirm your email address using the following link:\n\n${verificationLink}`,
-    html: `<p>Thank you for signing up to Gymrats! Please confirm your email address using <a href="${verificationLink}">this link</a>.</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
+    text: `Hi!\n\nThank you for signing up to Gymrats! Please confirm your email address by clicking on the link below:\n\n${verificationLink}\n\Happy lifting!\n\nThe Gymrats team`,
+  })
+
+  return mailSent
+}
+
+userSchema.statics.sendResetPasswordEmail = async function (email: string) {
+  const verificationToken = jsonwebtoken.sign(
+    {
+      email,
+      action: 'resetPassword',
+    },
+    server.jwtSecret,
+    {
+      expiresIn: '7d',
+    }
+  )
+
+  const passwordResetLink = `${server.url}/reset-password?token=${verificationToken}`
+
+  const mailSent = await mailer.sendMail({
+    to: email,
+    subject: 'Resetting your password',
+    text: `Hi,\n\nWe have received a request to reset the password for your Gymrats account. To do this, use the following link:\n\n${passwordResetLink}\n\nIf you didn't request a password reset, you can ignore this email.\n\nThanks,\n\nThe Gymrats team`,
   })
 
   return mailSent
@@ -120,4 +146,4 @@ userSchema.post<UserDocument>('save', async function () {
   this.sendVerificationEmail()
 })
 
-export default mongoose.model<UserDocument>('User', userSchema)
+export default mongoose.model<UserDocument, UserModel>('User', userSchema)

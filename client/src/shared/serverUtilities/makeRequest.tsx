@@ -7,8 +7,14 @@ interface RequestDetails {
   body?: any
 }
 
+export interface ValidationErrors {
+  email?: string
+  password?: string
+}
+
 export interface ResponseData {
   error?: string
+  validationErrors?: ValidationErrors
   message?: string
   token?: string
   user?: User

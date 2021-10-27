@@ -1,3 +1,4 @@
+import * as http from 'http'
 import express from 'express'
 import cors from 'cors'
 import authRouter from '../routers/authRouter'
@@ -10,7 +11,7 @@ import {
 } from '../controllers/globalControllers'
 
 export default class Server {
-  instance: express.Application
+  instance: http.Server
   url: string
   port: number = 5000
   jwtSecret: string
@@ -22,22 +23,32 @@ export default class Server {
       )
     }
 
-    this.instance = express()
     this.url = process.env.URL
     this.port = process.env.PORT ? parseInt(process.env.PORT) : 5000
     this.jwtSecret = process.env.JWT_SECRET
+
+    const application = express()
+
+    application.use(cors())
+    application.use(express.urlencoded({ extended: false }))
+    application.use(express.json())
+    application.use(setRequestUserIfInToken)
+    application.use('/api/auth', authRouter)
+    application.use('/api/users', usersRouter)
+    application.use(throwRouteNotFoundError)
+    application.use(logError)
+    application.use(sendClientError)
+
+    this.instance = application.listen(this.port, () =>
+      console.log(`Server started on port ${this.port}`)
+    )
   }
 
-  launch() {
-    this.instance.use(cors())
-    this.instance.use(express.urlencoded({ extended: false }))
-    this.instance.use(express.json())
-    this.instance.use(setRequestUserIfInToken)
-    this.instance.use('/api/auth', authRouter)
-    this.instance.use('/api/users', usersRouter)
-    this.instance.use(throwRouteNotFoundError)
-    this.instance.use(logError)
-    this.instance.use(sendClientError)
-    this.instance.listen(this.port)
+  close(callback: () => any) {
+    this.instance.close(() => {
+      console.log(`Server closed on port ${this.port}`)
+
+      callback()
+    })
   }
 }

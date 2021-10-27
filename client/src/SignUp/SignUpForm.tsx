@@ -1,6 +1,6 @@
 import { FC, useState, ChangeEvent } from 'react'
-import { Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
+import { postUser, ValidationErrors } from '../shared/serverUtilities'
 import Alert from '../shared/Alert'
 import Loader from '../shared/Loader'
 
@@ -8,16 +8,16 @@ const SignUpForm: FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | false>(false)
   const [validationErrors, setValidationErrors] = useState<
-    | {
-        email?: string
-        password?: string
-      }
-    | false
+    ValidationErrors | false
   >(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const { user, setToken } = useAuth()
+  const { setToken } = useAuth()
+
+  const handleClearError = () => {
+    setError(false)
+  }
 
   const handleSetEmail = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value)
@@ -29,39 +29,32 @@ const SignUpForm: FC = () => {
 
   const handleSignUp = async () => {
     try {
+      setLoading(true)
       setError(false)
       setValidationErrors(false)
-      setLoading(true)
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/users`,
-        {
-          method: 'post',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      )
+      const response = await postUser(email, password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error)
-        setValidationErrors(data.validationErrors)
+      if (response.error) {
+        setError(response.error)
         setLoading(false)
+
+        if (!response.validationErrors) {
+          return
+        }
+
+        setValidationErrors(response.validationErrors)
+
         return
       }
 
-      const tokenFromResponse = data.token
-
-      if (!tokenFromResponse) {
+      if (!response.token) {
         setError('Could not sign up, please try again')
         setLoading(false)
         return
       }
 
-      setToken(tokenFromResponse)
+      setToken(response.token)
     } catch (error) {
       setError('Could not sign up, please try again')
       setValidationErrors(false)
@@ -71,25 +64,15 @@ const SignUpForm: FC = () => {
   }
 
   if (loading) {
-    return (
-      <div className="mb-4">
-        <Loader />
-      </div>
-    )
-  }
-
-  if (user) {
-    return <Redirect to="/dashboard" />
+    return <Loader />
   }
 
   return (
-    <div className="mb-4">
+    <>
       {error && (
-        <Alert
-          type="danger"
-          message={error}
-          onDismiss={setError ? () => setError(false) : undefined}
-        />
+        <Alert type="danger" onDismiss={handleClearError}>
+          {error}
+        </Alert>
       )}
 
       <div className="mb-3">
@@ -136,7 +119,7 @@ const SignUpForm: FC = () => {
       >
         Sign up
       </button>
-    </div>
+    </>
   )
 }
 

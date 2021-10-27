@@ -66,45 +66,50 @@ export const sendClientError: ErrorRequestHandler = (
   response,
   next
 ) => {
-  // Handle duplicate key errors
-  if (error.code && error.code === 11000) {
-    const field = Object.keys(error.keyValue)[0]
+  try {
+    // Handle duplicate key errors
+    if (error.code && error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0]
 
-    response.status(409)
-    return response.json({ error: `That ${field} is already taken` })
-  }
+      response.status(409)
+      return response.json({ error: `That ${field} is already taken` })
+    }
 
-  if (error.name === 'ValidationError') {
-    const mongooseValidationError: Error.ValidationError = error
-    const validationErrors: ValidationErrors = {}
+    if (error.name === 'ValidationError') {
+      const mongooseValidationError: Error.ValidationError = error
+      const validationErrors: ValidationErrors = {}
 
-    Object.values(mongooseValidationError.errors).forEach(
-      mongooseValidationError => {
-        if (mongooseValidationError.name === 'ValidationError') {
-          return
+      Object.values(mongooseValidationError.errors).forEach(
+        mongooseValidationError => {
+          if (mongooseValidationError.name === 'ValidationError') {
+            return
+          }
+
+          validationErrors[mongooseValidationError.path] =
+            mongooseValidationError.message
         }
+      )
 
-        validationErrors[mongooseValidationError.path] =
-          mongooseValidationError.message
-      }
-    )
+      response.status(400)
+      return response.json({
+        error: 'There were some issues with your submission',
+        validationErrors,
+      })
+    }
 
-    response.status(400)
-    return response.json({
-      error: 'There were some issues with your submission',
-      validationErrors,
-    })
+    if (error.name === 'ApiError') {
+      const apiError: ApiError = error
+
+      response.status(apiError.statusCode)
+      return response.json({
+        error: apiError.message,
+      })
+    }
+
+    response.status(500)
+    return response.json({ error: 'Something went wrong' })
+  } catch (error) {
+    response.status(500)
+    return response.json({ error: 'Something went wrong' })
   }
-
-  if (error.name === 'ApiError') {
-    const apiError: ApiError = error
-
-    response.status(apiError.statusCode)
-    return response.json({
-      error: apiError.message,
-    })
-  }
-
-  response.status(500)
-  return response.json({ error: 'Something went wrong' })
 }

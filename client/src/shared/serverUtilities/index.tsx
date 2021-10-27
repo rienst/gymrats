@@ -10,8 +10,8 @@ export interface User {
 }
 
 export const getTokenFromCredentials = async (
-  email: string,
-  password: string
+  email?: string,
+  password?: string
 ) => {
   return await makeRequest({
     method: 'post',
@@ -28,11 +28,46 @@ export const getUserFromToken = async (token?: string) => {
   })
 }
 
-export const postSendVerificationMailRequest = async (token?: string) => {
+export const postUser = async (email?: string, password?: string) => {
+  return await makeRequest({
+    method: 'post',
+    endpoint: '/users',
+    body: { email, password },
+  })
+}
+
+export const postSendVerificationEmailRequest = async (token?: string) => {
   return await makeRequest({
     method: 'post',
     endpoint: '/auth/send-verification-email',
     token,
+  })
+}
+
+export const postVerifyEmail = async (token?: string) => {
+  return await makeRequest({
+    method: 'post',
+    endpoint: '/auth/verify-email',
+    body: { token },
+  })
+}
+
+export const postSendResetPasswordEmailRequest = async (email?: string) => {
+  return await makeRequest({
+    method: 'post',
+    endpoint: '/auth/send-reset-password-email',
+    body: { email },
+  })
+}
+
+export const postResetPasswordRequest = async (
+  token?: string,
+  newPassword?: string
+) => {
+  return await makeRequest({
+    method: 'post',
+    endpoint: '/auth/reset-password',
+    body: { token, newPassword },
   })
 }
 

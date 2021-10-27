@@ -4,6 +4,7 @@ import Loader from '../shared/Loader'
 import Wrapper from '../shared/Wrapper'
 import useQuery from '../shared/useQuery'
 import Alert from '../shared/Alert'
+import { postVerifyEmail } from '../shared/serverUtilities'
 
 const VerifyEmail: FC = () => {
   const [loading, setLoading] = useState(false)
@@ -21,21 +22,10 @@ const VerifyEmail: FC = () => {
           return
         }
 
-        const response = await fetch(
-          `${process.env.REACT_APP_API_BASE_URL}/auth/verify-email`,
-          {
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token }),
-          }
-        )
+        const response = await postVerifyEmail(token)
 
-        const data = await response.json()
-
-        if (!response.ok) {
-          setError(data.error)
+        if (response.error) {
+          setError(response.error)
           setLoading(false)
           return
         }
@@ -60,7 +50,7 @@ const VerifyEmail: FC = () => {
   if (error) {
     return (
       <Wrapper>
-        <Alert type="danger" message={error} />
+        <Alert type="danger">{error}</Alert>
       </Wrapper>
     )
   }
