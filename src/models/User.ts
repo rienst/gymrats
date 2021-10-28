@@ -80,7 +80,7 @@ userSchema.methods.sendVerificationEmail = async function () {
   const mailSent = await mailer.sendMail({
     to: this.email,
     subject: 'Please confirm your password',
-    text: `Hi!\n\nThank you for signing up to Gymrats! Please confirm your email address by clicking on the link below:\n\n${verificationLink}\n\Happy lifting!\n\nThe Gymrats team`,
+    text: `Hi!\n\nThank you for signing up to Gymrats! Please confirm your email address by clicking on the link below:\n\n${verificationLink}\n\nHappy lifting!\n\nThe Gymrats team`,
   })
 
   return mailSent

@@ -20,5 +20,7 @@ export default class Database {
       useCreateIndex: true,
       useFindAndModify: false,
     })
+
+    console.log('Database connected')
   }
 }
