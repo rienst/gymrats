@@ -1,14 +1,15 @@
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
 import Wrapper from '../shared/Wrapper'
+import LogoBanner from '../shared/LogoBanner'
 import ForgotPasswordForm from './ForgotPasswordForm'
 
 const ForgotPassword: FC = () => {
   return (
     <Wrapper>
-      <h1 className="text-center">Gymrats</h1>
+      <LogoBanner />
 
-      <p>
+      <p className="mb-4">
         Please fill in your email address so we can send you a link to reset
         your password.
       </p>

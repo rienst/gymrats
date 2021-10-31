@@ -2,7 +2,8 @@ import { FC, useState, ChangeEvent } from 'react'
 import useAuth from '../shared/useAuth'
 import { getTokenFromCredentials } from '../shared/serverUtilities'
 import Alert from '../shared/Alert'
-import Loader from '../shared/Loader'
+import Form, { Field } from '../shared/Form'
+import Button from '../shared/Button'
 
 const LogInForm: FC = () => {
   const [loading, setLoading] = useState(false)
@@ -33,14 +34,8 @@ const LogInForm: FC = () => {
 
       const response = await getTokenFromCredentials(email, password)
 
-      if (response.error) {
-        setError(response.error)
-        setLoading(false)
-        return
-      }
-
-      if (!response.token) {
-        setError('Could not log in, please try again')
+      if (response.error || !response.token) {
+        setError(response.error ?? 'Could not log in, please try again')
         setLoading(false)
         return
       }
@@ -53,49 +48,37 @@ const LogInForm: FC = () => {
     }
   }
 
-  if (loading) {
-    return <Loader />
-  }
-
   return (
     <>
       {error && (
-        <Alert type="danger" onDismiss={handleClearError}>
+        <Alert variant="danger" onDismiss={handleClearError}>
           {error}
         </Alert>
       )}
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="email">
-          Email
-        </label>
-        <input
-          className="form-control"
+      <Form>
+        <Field
+          label="Email"
           type="email"
-          name="email"
           id="email"
+          name="email"
           value={email}
           onChange={handleSetEmail}
         />
-      </div>
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="password">
-          Password
-        </label>
-        <input
-          className="form-control"
+        <Field
+          label="Password"
           type="password"
-          name="password"
           id="password"
+          name="password"
           value={password}
           onChange={handleSetPassword}
         />
-      </div>
 
-      <button className="btn btn-primary d-block w-100" onClick={handleLogIn}>
-        Log in
-      </button>
+        <Button block onClick={handleLogIn} loading={loading}>
+          Log in
+        </Button>
+      </Form>
     </>
   )
 }

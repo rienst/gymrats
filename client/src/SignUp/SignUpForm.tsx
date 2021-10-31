@@ -2,14 +2,13 @@ import { FC, useState, ChangeEvent } from 'react'
 import useAuth from '../shared/useAuth'
 import { postUser, ValidationErrors } from '../shared/serverUtilities'
 import Alert from '../shared/Alert'
-import Loader from '../shared/Loader'
+import Form, { Field } from '../shared/Form'
+import Button from '../shared/Button'
 
 const SignUpForm: FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | false>(false)
-  const [validationErrors, setValidationErrors] = useState<
-    ValidationErrors | false
-  >(false)
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -31,7 +30,7 @@ const SignUpForm: FC = () => {
     try {
       setLoading(true)
       setError(false)
-      setValidationErrors(false)
+      setValidationErrors({})
 
       const response = await postUser(email, password)
 
@@ -57,68 +56,50 @@ const SignUpForm: FC = () => {
       setToken(response.token)
     } catch (error) {
       setError('Could not sign up, please try again')
-      setValidationErrors(false)
+      setValidationErrors({})
     } finally {
       setLoading(false)
     }
   }
 
-  if (loading) {
-    return <Loader />
-  }
-
   return (
     <>
       {error && (
-        <Alert type="danger" onDismiss={handleClearError}>
+        <Alert variant="danger" onDismiss={handleClearError}>
           {error}
         </Alert>
       )}
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="email">
-          Email
-        </label>
-        <input
-          className={`form-control${
-            validationErrors && validationErrors.email ? ' is-invalid' : ''
-          }`}
+      <Form>
+        <Field
+          label="Email"
           type="email"
-          name="email"
           id="email"
+          name="email"
           value={email}
           onChange={handleSetEmail}
+          error={validationErrors.email}
         />
-        {validationErrors && validationErrors.email && (
-          <div className="invalid-feedback">{validationErrors.email}</div>
-        )}
-      </div>
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="password">
-          Password
-        </label>
-        <input
-          className={`form-control${
-            validationErrors && validationErrors.password ? ' is-invalid' : ''
-          }`}
+        <Field
+          label="Password"
           type="password"
-          name="password"
           id="password"
+          name="password"
           value={password}
           onChange={handleSetPassword}
+          error={validationErrors.password}
         />
-        {validationErrors && validationErrors.password && (
-          <div className="invalid-feedback">{validationErrors.password}</div>
-        )}
-      </div>
 
-      <button
-        className="btn btn-outline-primary d-block w-100"
-        onClick={handleSignUp}
-      >
-        Sign up
-      </button>
+        <Button
+          variant="outline-primary"
+          block
+          onClick={handleSignUp}
+          loading={loading}
+        >
+          Sign up
+        </Button>
+      </Form>
     </>
   )
 }

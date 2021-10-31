@@ -1,16 +1,18 @@
 import { FC, useState, useRef, TransitionEvent } from 'react'
 
+type AlertVariant = 'primary' | 'success' | 'warning' | 'danger'
+
 interface Props {
-  type?: 'primary' | 'success' | 'warning' | 'danger'
+  variant?: AlertVariant
   onDismiss?: () => any
 }
 
-const Alert: FC<Props> = ({ type = 'primary', onDismiss, children }) => {
+const Alert: FC<Props> = ({ variant = 'primary', onDismiss, children }) => {
   const [visible, setVisible] = useState(true)
 
   const alertRef = useRef(null)
 
-  const alertClasses: string[] = ['alert', `alert-${type}`]
+  const alertClasses: string[] = ['alert', `alert-${variant}`]
 
   if (onDismiss) {
     alertClasses.push('alert-dismissible')

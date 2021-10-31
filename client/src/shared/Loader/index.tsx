@@ -10,6 +10,7 @@ const Loader: FC<Props> = ({ message }) => {
       <div className="spinner-border" role="status">
         <span className="visually-hidden">Loading...</span>
       </div>
+
       {message && <p className="mt-3 mb-0">{message}</p>}
     </div>
   )

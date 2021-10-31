@@ -1,8 +1,9 @@
 import { FC } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
-import ResendVerificationEmail from '../shared/ResendVerificationEmail'
+import ResendVerificationEmailButton from '../shared/ResendVerificationEmailButton'
 import Wrapper from '../shared/Wrapper'
+import Button from '../shared/Button'
 
 const Welcome: FC = () => {
   const { user, setToken } = useAuth()
@@ -27,16 +28,13 @@ const Welcome: FC = () => {
             </p>
 
             <div className="mb-2">
-              <ResendVerificationEmail />
+              <ResendVerificationEmailButton />
             </div>
 
             <p className="mb-0">
-              <button
-                onClick={handleLogOut}
-                className="btn btn-link text-danger"
-              >
+              <Button variant="outline-danger" onClick={handleLogOut}>
                 Log out
-              </button>
+              </Button>
             </p>
           </>
         )}

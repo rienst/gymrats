@@ -2,6 +2,8 @@ import { FC } from 'react'
 import { Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
 import Wrapper from '../shared/Wrapper'
+import LogoBanner from '../shared/LogoBanner'
+import Button from '../shared/Button'
 
 const Dashboard: FC = () => {
   const { user, setToken } = useAuth()
@@ -20,11 +22,13 @@ const Dashboard: FC = () => {
 
   return (
     <Wrapper>
+      <LogoBanner />
+
       <p>Logged in as {user.name || user.email}</p>
 
-      <button className="btn btn-outline-danger" onClick={handleLogOut}>
+      <Button variant="outline-danger" onClick={handleLogOut}>
         Log out
-      </button>
+      </Button>
     </Wrapper>
   )
 }

@@ -1,17 +1,17 @@
-import * as http from 'http'
+import { Server as HttpServer } from 'http'
 import express from 'express'
 import cors from 'cors'
 import authRouter from '../routers/authRouter'
 import usersRouter from '../routers/usersRouter'
-import { setRequestUserIfInToken } from '../controllers/globalControllers'
 import {
+  setRequestUserIfInToken,
   throwRouteNotFoundError,
   logError,
   sendClientError,
 } from '../controllers/globalControllers'
 
 export default class Server {
-  instance: http.Server
+  instance: HttpServer
   url: string
   port: number = 5000
   jwtSecret: string
@@ -44,11 +44,11 @@ export default class Server {
     )
   }
 
-  close(callback: () => any) {
+  close(callback?: () => any) {
     this.instance.close(() => {
-      console.log(`Server closed on port ${this.port}`)
+      console.log(`Server on port ${this.port} was closed`)
 
-      callback()
+      callback && callback()
     })
   }
 }

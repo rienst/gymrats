@@ -1,8 +1,9 @@
 import { FC, useState, ChangeEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import useQuery from '../shared/useQuery'
-import Loader from '../shared/Loader'
 import Alert from '../shared/Alert'
+import Form, { Field } from '../shared/Form'
+import Button from '../shared/Button'
 import {
   postResetPasswordRequest,
   ValidationErrors,
@@ -12,9 +13,7 @@ const ResetPasswordForm: FC = () => {
   const [newPassword, setNewPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | false>(false)
-  const [validationErrors, setValidationErrors] = useState<
-    ValidationErrors | false
-  >(false)
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [success, setSuccess] = useState(false)
 
   const token = useQuery('token')
@@ -32,7 +31,7 @@ const ResetPasswordForm: FC = () => {
       try {
         setLoading(true)
         setError(false)
-        setValidationErrors(false)
+        setValidationErrors({})
         setSuccess(false)
 
         if (!token) {
@@ -68,20 +67,20 @@ const ResetPasswordForm: FC = () => {
     resetPassword()
   }
 
-  if (loading) {
-    return <Loader />
+  if (!token) {
+    return <Redirect to="/forgot-password" />
   }
 
   return (
     <>
       {error && (
-        <Alert type="danger" onDismiss={handleUnsetError}>
+        <Alert variant="danger" onDismiss={handleUnsetError}>
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert type="success">
+        <Alert variant="success">
           <div className="d-flex align-items-center">
             <p className="mb-0 me-2">Your password has been reset</p>
             <p className="ms-auto mb-0">
@@ -95,34 +94,21 @@ const ResetPasswordForm: FC = () => {
 
       {!success && (
         <>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="password">
-              New password
-            </label>
-            <input
-              className={`form-control${
-                validationErrors && validationErrors.password
-                  ? ' is-invalid'
-                  : ''
-              }`}
+          <Form>
+            <Field
+              label="New password"
               type="password"
               name="newPassword"
               id="newPassword"
               value={newPassword}
               onChange={handleSetPassword}
+              error={validationErrors.password}
             />
-            {validationErrors && validationErrors.password && (
-              <div className="invalid-feedback">
-                {validationErrors.password}
-              </div>
-            )}
-          </div>
-          <button
-            className="btn btn-primary d-block w-100"
-            onClick={handleResetPassword}
-          >
-            Reset password
-          </button>
+
+            <Button block onClick={handleResetPassword} loading={loading}>
+              Reset password
+            </Button>
+          </Form>
         </>
       )}
     </>

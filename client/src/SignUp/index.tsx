@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import useAuth from '../shared/useAuth'
 import Wrapper from '../shared/Wrapper'
+import LogoBanner from '../shared/LogoBanner'
 import SignUpForm from './SignUpForm'
 
 const SignUp: FC = () => {
@@ -13,7 +14,7 @@ const SignUp: FC = () => {
 
   return (
     <Wrapper>
-      <h1 className="text-center">Gymrats</h1>
+      <LogoBanner />
 
       <div className="mb-4">
         <SignUpForm />

@@ -1,7 +1,8 @@
 import { FC, useState, ChangeEvent } from 'react'
 import { postSendResetPasswordEmailRequest } from '../shared/serverUtilities'
 import Alert from '../shared/Alert'
-import Loader from '../shared/Loader'
+import Form, { Field } from '../shared/Form'
+import Button from '../shared/Button'
 
 const ForgotPasswordForm: FC = () => {
   const [loading, setLoading] = useState(false)
@@ -45,28 +46,23 @@ const ForgotPasswordForm: FC = () => {
     }
   }
 
-  if (loading) {
-    return <Loader />
-  }
-
   return (
     <>
       {error && (
-        <Alert type="danger" onDismiss={handleClearError}>
+        <Alert variant="danger" onDismiss={handleClearError}>
           {error}
         </Alert>
       )}
 
       {message && (
-        <Alert type="success" onDismiss={handleClearMessage}>
+        <Alert variant="success" onDismiss={handleClearMessage}>
           {message}
         </Alert>
       )}
 
-      <div className="input-group mb-3">
-        <input
-          className="form-control"
-          placeholder="Email"
+      <Form>
+        <Field
+          label="Email"
           type="email"
           name="email"
           id="email"
@@ -74,13 +70,10 @@ const ForgotPasswordForm: FC = () => {
           onChange={handleSetEmail}
         />
 
-        <button
-          className="btn btn-primary"
-          onClick={handleSendResetPasswordEmail}
-        >
-          Send
-        </button>
-      </div>
+        <Button block onClick={handleSendResetPasswordEmail} loading={loading}>
+          Send password reset link
+        </Button>
+      </Form>
     </>
   )
 }
