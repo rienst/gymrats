@@ -1,8 +1,8 @@
 # Gymrats
 
-Gymrats started as an idea to build a fitness tracking app. It was my first time building a full stack MERN app and because of that, I refactored and learned from it a lot. When I finished the user management logic, I felt it was a good time to wrap this thing up and take my learnings to a new project where I could focus on scaling it more effectively.
+Gymrats started as an idea to build a fitness tracking app. The front-end uses React and Bootstrap. The back-end uses Node.js, Express and MongoDB with Mongoose. Both written in TypeScript.
 
-The front-end uses React and Bootstrap. The back-end uses Node.js, Express and MongoDB with Mongoose. Both written in TypeScript.
+It was my first time building a full stack MERN app and because of that, I refactored and learned from it a lot. When I finished the user management logic, I felt it was a good time to wrap this thing up and start new project, using what I learned and focussing more on scalability from the start.
 
 ## Features
 
